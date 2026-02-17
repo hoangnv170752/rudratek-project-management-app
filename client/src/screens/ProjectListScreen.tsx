@@ -113,7 +113,7 @@ export const ProjectListScreen: React.FC<ProjectListScreenProps> = ({ navigation
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-        contentContainerStyle={projects.length === 0 ? styles.emptyList : undefined}
+        contentContainerStyle={projects.length === 0 ? styles.emptyList : styles.list}
         ListEmptyComponent={
           <EmptyState
             title="No Projects"
@@ -129,6 +129,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  list: {
+    paddingBottom: 100,
   },
   emptyList: {
     flex: 1,
