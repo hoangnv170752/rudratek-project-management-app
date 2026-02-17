@@ -99,10 +99,16 @@ This app uses **JSON Server** as a mock REST API. The mock data in `server/db.js
 
 ## AI Usage Disclosure
 
-- **Tools used**: AI assistant for code generation
-- **Parts assisted**: Initial project structure, component boilerplate, TypeScript types
-- **Changes made**: Reviewed and adjusted all generated code for correctness
-- **Understanding**: Full understanding of React Native, React Navigation, hooks, and API integration patterns
+- **Tools used**: Claude Code (Anthropic Claude Opus 4.5)
+- **Parts assisted**: 
+  - Initial project structure and folder organization
+  - Component boilerplate (ProjectCard, StatusFilter, SearchBar, state components)
+  - TypeScript type definitions and interfaces
+  - Express server setup with REST API endpoints
+  - React Navigation configuration
+- **Changes made**: Reviewed and adjusted all generated code for correctness, customized styling, and ensured proper error handling
+- **What was rejected/changed**: Simplified state management approach (no Redux), removed unnecessary abstractions
+- **Understanding**: Full understanding of React Native, React Navigation, hooks, API integration patterns, and Express.js REST API development
 
 ## Tech Stack
 

@@ -11,7 +11,7 @@ import {
   ErrorState,
   LoadingState,
 } from '../components';
-import { RootStackParamList } from '../navigation/types';
+import { RootStackParamList } from '@/navigation/types';
 
 type FilterOption = ProjectStatus | 'all';
 
