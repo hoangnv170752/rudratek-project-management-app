@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { StyleSheet, View, FlatList, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Project, ProjectStatus } from '../types';
-import { projectService } from '../services/api';
+import { projectService, PaginationInfo } from '../services/api';
 import {
   ProjectCard,
   StatusFilter,
@@ -15,6 +15,8 @@ import { RootStackParamList } from '@/navigation/types';
 
 type FilterOption = ProjectStatus | 'all';
 
+const PAGE_SIZE = 10;
+
 interface ProjectListScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'ProjectList'>;
 }
@@ -22,32 +24,54 @@ interface ProjectListScreenProps {
 export const ProjectListScreen: React.FC<ProjectListScreenProps> = ({ navigation }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<FilterOption>('all');
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
 
-  const fetchProjects = useCallback(async () => {
+  const fetchProjects = useCallback(async (page = 1, append = false) => {
     try {
       setError(null);
-      const data = await projectService.getAll();
-      setProjects(data);
+      if (page === 1 && !append) {
+        setLoading(true);
+      }
+      const response = await projectService.getAll({
+        page,
+        limit: PAGE_SIZE,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        search: searchQuery || undefined,
+      });
+      if (append) {
+        setProjects((prev) => [...prev, ...response.data]);
+      } else {
+        setProjects(response.data);
+      }
+      setPagination(response.pagination);
     } catch (err) {
       setError('Failed to load projects. Please check your connection.');
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
-  }, []);
+  }, [statusFilter, searchQuery]);
 
   useEffect(() => {
-    fetchProjects();
+    fetchProjects(1, false);
   }, [fetchProjects]);
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchProjects();
+    fetchProjects(1, false);
   }, [fetchProjects]);
+
+  const handleLoadMore = useCallback(() => {
+    if (loadingMore || !pagination?.hasMore) return;
+    setLoadingMore(true);
+    fetchProjects(pagination.page + 1, true);
+  }, [loadingMore, pagination, fetchProjects]);
 
   const handleProjectPress = useCallback(
     (project: Project) => {
@@ -56,24 +80,21 @@ export const ProjectListScreen: React.FC<ProjectListScreenProps> = ({ navigation
     [navigation]
   );
 
-  const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
-      const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
-      const searchLower = searchQuery.toLowerCase();
-      const matchesSearch =
-        searchQuery === '' ||
-        project.name.toLowerCase().includes(searchLower) ||
-        project.clientName.toLowerCase().includes(searchLower);
-      return matchesStatus && matchesSearch;
-    });
-  }, [projects, statusFilter, searchQuery]);
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator size="small" color="#007AFF" />
+      </View>
+    );
+  };
 
   if (loading) {
     return <LoadingState message="Loading projects..." />;
   }
 
   if (error) {
-    return <ErrorState message={error} onRetry={fetchProjects} />;
+    return <ErrorState message={error} onRetry={() => fetchProjects(1, false)} />;
   }
 
   return (
@@ -81,7 +102,7 @@ export const ProjectListScreen: React.FC<ProjectListScreenProps> = ({ navigation
       <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
       <StatusFilter selectedStatus={statusFilter} onStatusChange={setStatusFilter} />
       <FlatList
-        data={filteredProjects}
+        data={projects}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ProjectCard project={item} onPress={handleProjectPress} />
@@ -89,19 +110,15 @@ export const ProjectListScreen: React.FC<ProjectListScreenProps> = ({ navigation
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
-        contentContainerStyle={filteredProjects.length === 0 ? styles.emptyList : undefined}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={projects.length === 0 ? styles.emptyList : undefined}
         ListEmptyComponent={
-          projects.length === 0 ? (
-            <EmptyState
-              title="No Projects"
-              message="There are no projects to display."
-            />
-          ) : (
-            <EmptyState
-              title="No Results"
-              message="No projects match your search or filter criteria."
-            />
-          )
+          <EmptyState
+            title="No Projects"
+            message="No projects match your criteria."
+          />
         }
       />
     </View>
@@ -115,5 +132,9 @@ const styles = StyleSheet.create({
   },
   emptyList: {
     flex: 1,
+  },
+  footer: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });

@@ -34,11 +34,48 @@ const writeDb = (data: Database): void => {
   fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 };
 
-// GET all projects
+// GET all projects with pagination
 app.get('/projects', (req: Request, res: Response) => {
   try {
     const db = readDb();
-    res.json(db.projects);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const status = req.query.status as string;
+    const search = req.query.search as string;
+
+    let filteredProjects = db.projects;
+
+    // Filter by status
+    if (status && status !== 'all') {
+      filteredProjects = filteredProjects.filter((p) => p.status === status);
+    }
+
+    // Search by name or clientName
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filteredProjects = filteredProjects.filter(
+        (p) =>
+          p.name.toLowerCase().includes(searchLower) ||
+          p.clientName.toLowerCase().includes(searchLower)
+      );
+    }
+
+    const total = filteredProjects.length;
+    const totalPages = Math.ceil(total / limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
+
+    res.json({
+      data: paginatedProjects,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasMore: page < totalPages,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to read projects' });
   }
