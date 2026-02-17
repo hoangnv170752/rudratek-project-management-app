@@ -1,0 +1,76 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "name": "E-Commerce Platform Redesign",
+      "clientName": "TechCorp Industries",
+      "status": "active",
+      "startDate": "2026-01-15",
+      "endDate": null,
+      "description": "Complete redesign of the e-commerce platform with modern UI/UX"
+    },
+    {
+      "id": "2",
+      "name": "Mobile Banking App",
+      "clientName": "First National Bank",
+      "status": "active",
+      "startDate": "2026-02-01",
+      "endDate": null,
+      "description": "Development of a secure mobile banking application"
+    },
+    {
+      "id": "3",
+      "name": "Inventory Management System",
+      "clientName": "Global Logistics Co.",
+      "status": "on_hold",
+      "startDate": "2025-11-10",
+      "endDate": null,
+      "description": "Custom inventory tracking and management solution"
+    },
+    {
+      "id": "4",
+      "name": "Healthcare Portal",
+      "clientName": "MedCare Solutions",
+      "status": "completed",
+      "startDate": "2025-06-01",
+      "endDate": "2025-12-15",
+      "description": "Patient portal for appointment scheduling and records"
+    },
+    {
+      "id": "5",
+      "name": "Real Estate Listing Platform",
+      "clientName": "Prime Properties LLC",
+      "status": "active",
+      "startDate": "2026-01-20",
+      "endDate": null,
+      "description": "Property listing and search platform with virtual tours"
+    },
+    {
+      "id": "6",
+      "name": "HR Management Dashboard",
+      "clientName": "Enterprise Solutions Inc.",
+      "status": "on_hold",
+      "startDate": "2025-09-15",
+      "endDate": null,
+      "description": "Employee management and payroll dashboard"
+    },
+    {
+      "id": "7",
+      "name": "Food Delivery App",
+      "clientName": "QuickBite Restaurants",
+      "status": "completed",
+      "startDate": "2025-03-01",
+      "endDate": "2025-08-30",
+      "description": "Mobile app for food ordering and delivery tracking"
+    },
+    {
+      "id": "8",
+      "name": "Learning Management System",
+      "clientName": "EduTech Academy",
+      "status": "active",
+      "startDate": "2026-02-10",
+      "endDate": null,
+      "description": "Online course platform with progress tracking"
+    }
+  ]
+}
